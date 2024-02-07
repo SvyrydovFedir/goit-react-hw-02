@@ -3,14 +3,16 @@ import "./App.css";
 import { Description } from "./components/Description/Description";
 import { Options } from "./components/Options/Options";
 import { Feedback } from "./components/Feedback/Feedback";
+import { Notification } from "./components/Notification/Notification";
+
 
 export const App = () => {
   const getFeedback = () => {
     const savedData = window.localStorage.getItem("data");
     if (savedData) {
-        return JSON.parse(savedData);
-    } 
-  
+      return JSON.parse(savedData);
+    }
+
     return {
       good: 0,
       neutral: 0,
@@ -18,35 +20,35 @@ export const App = () => {
     };
   };
 
-  const [typeOfFeedback, setType] = useState(getFeedback);
+  const [feedbackCounts, setTypeOfFeedback] = useState(getFeedback);
 
   useEffect(() => {
-    window.localStorage.setItem("data", JSON.stringify(typeOfFeedback));
-  }, [typeOfFeedback]);
+    window.localStorage.setItem("data", JSON.stringify(feedbackCounts));
+  }, [feedbackCounts]);
 
   const updateGood = () => {
-    setType((prevFeedback) => ({
-      ...prevFeedback,
-      good: prevFeedback.good + 1,
-    }));
+    setTypeOfFeedback({
+      ...feedbackCounts,
+      good: feedbackCounts.good + 1,
+    });
   };
 
   const updateNeutral = () => {
-    setType((prevFeedback) => ({
-      ...prevFeedback,
-      neutral: prevFeedback.neutral + 1,
-    }));
-  };
+    setTypeOfFeedback({
+      ...feedbackCounts,
+      neutral: feedbackCounts.neutral + 1,
+    });
+  }
 
   const updateBad = () => {
-    setType((prevFeedback) => ({
-      ...prevFeedback,
-      bad: prevFeedback.bad + 1,
-    }));
-  };
+    setTypeOfFeedback({
+      ...feedbackCounts,
+      bad: feedbackCounts.bad + 1,
+  })
+}
 
   const handleReset = () => {
-    setType({
+    setTypeOfFeedback({
       good: 0,
       neutral: 0,
       bad: 0,
@@ -54,7 +56,11 @@ export const App = () => {
   };
 
   const totalFeedback =
-    typeOfFeedback.good + typeOfFeedback.neutral + typeOfFeedback.bad;
+    feedbackCounts.good + feedbackCounts.neutral + feedbackCounts.bad;
+
+    const ratioCalculation = Math.round(
+      ((feedbackCounts.good + feedbackCounts.neutral) / totalFeedback) * 100
+    );
 
   return (
     <>
@@ -64,9 +70,9 @@ export const App = () => {
         updateNeutral={updateNeutral}
         updateBad={updateBad}
         handleReset={handleReset}
-        typeOfFeedback={typeOfFeedback}
+        totalFeedback={totalFeedback}
       />
-      <Feedback typeOfFeedback={typeOfFeedback} totalFeedback={totalFeedback} />
+      {totalFeedback > 0 ? (<Feedback feedbackCounts={feedbackCounts} totalFeedback={totalFeedback} ratioCalculation={ratioCalculation} />) : (<Notification/>)}
     </>
   );
 };
